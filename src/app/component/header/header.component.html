@@ -1,0 +1,31 @@
+
+<div class="card">
+  <div class="card-body">
+        <div class="container" [ngClass]="{'open':showOption}" >
+            <img  (click)="toggleDropdown()" src="/images/LOGO.jpg" alt="Username"/>
+        </div>
+  </div>
+      <nav class="navigation">
+        <ul>
+          <li><a href="#" class="active">HOME</a></li>
+          <li><a href="main">SERVICES</a></li>
+          <li><a href="#">GALLERY</a></li>
+          <li><a href="login">LOGIN</a></li>
+          <li><a href="#">HELP</a></li>
+        </ul>
+    </nav>
+</div>  
+
+    
+
+      <!-- Dropdown menu that shows when 'isDropdownOpen' is true -->
+      <div *ngIf="isDropdownOpen" class="card-body" style="width: 10rem; height:10rem; background-color: teal;  margin-left: 45cm;" >
+            <ul class="menu-list">
+                <li> <i class="fas fa-regular fa-user mr-2"></i>  Profile</li>
+                <li><i class="fa fa-gear"></i>  Settings</li>
+                <li><i class="mdi mdi-logout mr-2 text-blue-900"></i>  Sign out</li>
+            </ul>
+      </div>
+
+
+

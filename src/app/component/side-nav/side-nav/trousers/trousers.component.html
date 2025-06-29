@@ -1,0 +1,31 @@
+<!-- <p>trousers works!</p> -->
+<app-header></app-header>
+<app-side-nav></app-side-nav>
+<div class="container">
+    <h1>Get and Select a Trouser Style</h1>
+    <div class="style-grid">
+      <div *ngFor="let style of clothingStyles" class="style-card">
+        <img [src]="style.image" [alt]="style.name">
+        <div class="style-info">
+          <h2>{{ style.name }}</h2>
+          <p class="cost">${{ style.cost.toFixed(2) }}</p>
+          <p>{{ style.description }}</p>
+          <button (click)="selectStyle(style)" [class.selected]="selectedStyle?.id === style.id">
+            {{ selectedStyle?.id === style.id ? 'Selected' : 'Select' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="selectedStyle" class="selected-style">
+      <h2>Selected Style</h2>
+      <div class="selected-style-content">
+        <img [src]="selectedStyle.image" [alt]="selectedStyle.name">
+        <div class="selected-style-info">
+          <h3>{{ selectedStyle.name }}</h3>
+          <p class="cost">Cost: ${{ selectedStyle.cost.toFixed(2) }}</p>
+          <p>{{ selectedStyle.description }}</p>
+          <button (click)="proceedToSewing()">Proceed to Sewing</button>
+        </div>
+      </div>
+    </div>
+  </div>

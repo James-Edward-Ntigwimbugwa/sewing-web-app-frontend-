@@ -1,0 +1,241 @@
+/* Hamburger menu button */
+.menu-toggle {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    z-index: 1000;
+    background: #28a745;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle i {
+    color: white;
+    font-size: 18px;
+}
+
+.menu-toggle:hover {
+    background: #218838;
+}
+
+/* Adjust button position when sidebar is open */
+.menu-toggle.sidebar-open {
+    left: 330px; /* Adjust based on sidebar width */
+}
+
+/* Side navigation card */
+.card {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    z-index: 999;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hidden state */
+.card.hidden {
+    transform: translateX(-100%);
+}
+
+/* Logo styling */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.logo-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #28a745;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+.logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Logo and user info styling */
+.logo_details {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.user-info {
+    margin-top: 15px;
+}
+
+.user-info h2 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.user-info p {
+    margin: 0;
+    font-style: italic;
+}
+
+/* User action buttons styling */
+.user-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.user-actions .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-actions .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+    background: transparent;
+}
+
+.user-actions .btn-outline-primary:hover {
+    background: #007bff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.user-actions .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+    background: transparent;
+}
+
+.user-actions .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Navigation menu styling */
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Custom scrollbar for navigation */
+.nav-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nav-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+    background: #28a745;
+    border-radius: 2px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb:hover {
+    background: #218838;
+}
+
+.nav-item {
+    width: 100%;
+    flex-shrink: 0; /* Prevent items from shrinking */
+}
+
+.nav-link {
+    width: 100% !important;
+    height: 45px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    padding: 0 15px;
+    margin-bottom: 2px;
+}
+
+.nav-link:hover {
+    background: #218838 !important;
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.nav-link i {
+    margin-right: 12px;
+    width: 18px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Loading state styling */
+.loading-text {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        width: 280px;
+    }
+    
+    .menu-toggle.sidebar-open {
+        left: 290px;
+    }
+
+    .logo-circle {
+        width: 70px;
+        height: 70px;
+    }
+
+    .nav-link {
+        height: 40px !important;
+        font-size: 13px;
+    }
+
+    .user-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .user-actions .btn {
+        width: 100%;
+        justify-content: center;
+        max-width: 120px;
+    }
+}

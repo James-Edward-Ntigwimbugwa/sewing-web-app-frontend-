@@ -1,0 +1,173 @@
+ <div class="registration-container">
+      <div class="registration-card">
+        <h2>Tailor Registration</h2>
+        
+        <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <h3>Personal Information</h3>
+            
+            <div class="form-group">
+              <label for="fullName">Full Name *</label>
+              <input 
+                type="text" 
+                id="fullName" 
+                formControlName="fullName"
+                [class.error]="isFieldInvalid('fullName')"
+                placeholder="Enter your full name">
+              <div class="error-message" *ngIf="isFieldInvalid('fullName')">
+                Full name is required
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  formControlName="email"
+                  [class.error]="isFieldInvalid('email')"
+                  placeholder="Enter your email">
+                <div class="error-message" *ngIf="isFieldInvalid('email')">
+                  <span *ngIf="registrationForm.get('email')?.errors?.['required']">Email is required</span>
+                  <span *ngIf="registrationForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="phoneNumber">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  id="phoneNumber" 
+                  formControlName="phoneNumber"
+                  [class.error]="isFieldInvalid('phoneNumber')"
+                  placeholder="Enter phone number">
+                <div class="error-message" *ngIf="isFieldInvalid('phoneNumber')">
+                  Phone number is required
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nationalIdNumber">National ID Number *</label>
+                <input 
+                  type="text" 
+                  id="nationalIdNumber" 
+                  formControlName="nationalIdNumber"
+                  [class.error]="isFieldInvalid('nationalIdNumber')"
+                  placeholder="Enter national ID number">
+                <div class="error-message" *ngIf="isFieldInvalid('nationalIdNumber')">
+                  National ID number is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="sex">Gender *</label>
+                <select 
+                  id="sex" 
+                  formControlName="sex"
+                  [class.error]="isFieldInvalid('sex')">
+                  <option value="">Select gender</option>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+                <div class="error-message" *ngIf="isFieldInvalid('sex')">
+                  Gender is required
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Information Section -->
+          <div class="form-section">
+            <h3>Location Information</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="areaOfResidence">Area of Residence *</label>
+                <input 
+                  type="text" 
+                  id="areaOfResidence" 
+                  formControlName="areaOfResidence"
+                  [class.error]="isFieldInvalid('areaOfResidence')"
+                  placeholder="Enter area of residence">
+                <div class="error-message" *ngIf="isFieldInvalid('areaOfResidence')">
+                  Area of residence is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="areaOfWork">Area of Work *</label>
+                <input 
+                  type="text" 
+                  id="areaOfWork" 
+                  formControlName="areaOfWork"
+                  [class.error]="isFieldInvalid('areaOfWork')"
+                  placeholder="Enter area of work">
+                <div class="error-message" *ngIf="isFieldInvalid('areaOfWork')">
+                  Area of work is required
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Information Section -->
+          <div class="form-section">
+            <h3>Account Information</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="username">Username *</label>
+                <input 
+                  type="text" 
+                  id="username" 
+                  formControlName="username"
+                  [class.error]="isFieldInvalid('username')"
+                  placeholder="Choose a username">
+                <div class="error-message" *ngIf="isFieldInvalid('username')">
+                  Username is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password *</label>
+                <input 
+                  type="password" 
+                  id="password" 
+                  formControlName="password"
+                  [class.error]="isFieldInvalid('password')"
+                  placeholder="Enter password">
+                <div class="error-message" *ngIf="isFieldInvalid('password')">
+                  <span *ngIf="registrationForm.get('password')?.errors?.['required']">Password is required</span>
+                  <span *ngIf="registrationForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="submit-btn"
+              [disabled]="registrationForm.invalid || isLoading">
+              <span *ngIf="isLoading" class="loading-spinner"></span>
+              {{ isLoading ? 'Registering...' : 'Register Tailor' }}
+            </button>
+          </div>
+        </form>
+
+        <!-- Success/Error Messages -->
+        <div *ngIf="successMessage" class="success-message">
+          <h4>Registration Successful!</h4>
+          <p>{{ successMessage }}</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message-box">
+          <h4>Registration Failed</h4>
+          <p>{{ errorMessage }}</p>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,86 @@
+<!-- Hamburger menu button - always visible -->
+<div class="menu-toggle" [class.sidebar-open]="isOpen">
+    <i class="fa fa-bars" id="btn" (click)="toggleSidebar()"></i>
+</div>
+
+<!-- Side navigation - conditionally displayed -->
+<div class="card" [class.hidden]="!isOpen" style="width: 20em; height: auto;">
+    <div class="logo_details flex mb-2">
+        <div class="logo_name">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-circle">
+                    <img src="/images/LOGO.jpg" alt="Logo" class="logo-image">
+                </div>
+            </div>
+            
+            <!-- User info display -->
+            <div class="user-info">
+                <h2 class="text-sm tracking-widest text-black-300 text-center font-semibold">
+                    <span *ngIf="!isLoading">Welcome, {{username}}</span>
+                    <span *ngIf="isLoading">Loading...</span>
+                </h2>
+                <p class="text-xs text-gray-500 text-center">{{role}}</p>
+                
+                <!-- Profile and Logout buttons -->
+                <div class="user-actions mt-3">
+                    <button 
+                        class="btn btn-outline-primary btn-sm me-2" 
+                        (click)="showProfile()"
+                        *ngIf="!isLoading && tailorData"
+                        title="View Profile">
+                        <i class="fa fa-user"></i> Profile
+                    </button>
+                    <button 
+                        class="btn btn-outline-danger btn-sm" 
+                        (click)="logout()"
+                        title="Logout">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation menu -->
+    <div class="nav-menu mt-4">
+        <div class="nav-item">
+            <a href="#" class="btn btn-success nav-link">
+                <i class="fa fa-dashboard mr-2"></i>Dashboard
+            </a>
+        </div> 
+        <div class="nav-item">
+            <a href="/sout" class="btn btn-success nav-link">
+                <i class="fa fa-shopping-bag mr-2"></i>Sout
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/shirts" class="btn btn-success nav-link">
+                <i class="fa fa-tshirt mr-2"></i>Shirts
+            </a>
+        </div> 
+        <div class="nav-item">
+            <a href="/trousers" class="btn btn-success nav-link">
+                <i class="fa fa-male mr-2"></i>Trousers
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/gauni" class="btn btn-success nav-link">
+                <i class="fa fa-female mr-2"></i>Gauni
+            </a>
+        </div> 
+        <div class="nav-item">
+            <a href="#" class="btn btn-success nav-link">
+                <i class="fa fa-arrow-right mr-2"></i>Go somewhere
+            </a>
+        </div>  
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<app-profile-modal 
+    *ngIf="showProfileModal && tailorData"
+    [tailorData]="tailorData"
+    (close)="hideProfile()"
+    (profileUpdated)="onProfileUpdated($event)">
+</app-profile-modal>

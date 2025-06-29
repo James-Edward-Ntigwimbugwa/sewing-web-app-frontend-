@@ -1,0 +1,67 @@
+<!-- Loading Overlay -->
+<div class="loading-overlay" [class.active]="isLoading">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">{{ loadingMessage }}</p>
+    </div>
+</div>
+
+<div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+</div>
+
+<div class="landing-container">
+    <div class="landing-content">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="/images/LOGO.jpg" alt="Logo" />
+                </div>
+                <span class="logo-text">TAILOR CONNECT SERVICE</span>
+            </div>
+            <nav class="navigation">
+                <ul>
+                    <li><a href="#" class="active">HOME</a></li>
+                    <li><a href="main">SERVICES</a></li>
+                    <li><a href="#">GALLERY</a></li>
+                    <li><a href="login">LOGIN</a></li>
+                    <li><a href="#">HELP</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="hero-content">
+            <h1>WELCOME TO OUR SITE</h1>
+            <p>Welcome to Tailor Connect! We're thrilled to have you. Enjoy seamless tailoring services, personalized experiences, and reliable support—designed just for you. Your satisfaction is our priority.</p>
+            
+            <div class="button-container">
+                <button 
+                    class="btn primary-btn" 
+                    (click)="primaryAction()" 
+                    [disabled]="isLoading"
+                    [class.loading]="isLoading">
+                    <span *ngIf="!isLoading">Login as Customer</span>
+                    <span *ngIf="isLoading">Loading...</span>
+                </button>
+                <div class="divider">---- OR ----</div>
+                <button 
+                    class="btn secondary-btn" 
+                    (click)="secondaryAction()" 
+                    [disabled]="isLoading"
+                    [class.loading]="isLoading">
+                    <span *ngIf="!isLoading">Login as Tailor</span>
+                    <span *ngIf="isLoading">Loading...</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="wave-shape"></div>
+    </div>
+</div>

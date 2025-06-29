@@ -1,0 +1,179 @@
+ <!-- Modal Backdrop -->
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <i class="fa fa-user-circle"></i>
+            Profile Details
+          </h2>
+          <button class="close-btn" (click)="closeModal()" title="Close">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form #profileForm="ngForm" (ngSubmit)="saveProfile()">
+            <div class="form-grid">
+              <!-- Full Name -->
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input 
+                  type="text" 
+                  id="fullName"
+                  name="fullName"
+                  [(ngModel)]="editableData.fullName"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Username -->
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                  type="text" 
+                  id="username"
+                  name="username"
+                  [(ngModel)]="editableData.username"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Email -->
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                  type="email" 
+                  id="email"
+                  name="email"
+                  [(ngModel)]="editableData.email"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="form-group">
+                <label for="phoneNumber">Phone Number</label>
+                <input 
+                  type="tel" 
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  [(ngModel)]="editableData.phoneNumber"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- National ID -->
+              <div class="form-group">
+                <label for="nationalIdNumber">National ID Number</label>
+                <input 
+                  type="text" 
+                  id="nationalIdNumber"
+                  name="nationalIdNumber"
+                  [(ngModel)]="editableData.nationalIdNumber"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Sex -->
+              <div class="form-group">
+                <label for="sex">Gender</label>
+                <select 
+                  id="sex"
+                  name="sex"
+                  [(ngModel)]="editableData.sex"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <!-- Area of Residence -->
+              <div class="form-group">
+                <label for="areaOfResidence">Area of Residence</label>
+                <input 
+                  type="text" 
+                  id="areaOfResidence"
+                  name="areaOfResidence"
+                  [(ngModel)]="editableData.areaOfResidence"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Area of Work -->
+              <div class="form-group">
+                <label for="areaOfWork">Area of Work</label>
+                <input 
+                  type="text" 
+                  id="areaOfWork"
+                  name="areaOfWork"
+                  [(ngModel)]="editableData.areaOfWork"
+                  [disabled]="!isEditing"
+                  class="form-control"
+                  required>
+              </div>
+
+              <!-- Date of Registration (Read-only) -->
+              <div class="form-group full-width">
+                <label for="dateOfRegistration">Date of Registration</label>
+                <input 
+                  type="text" 
+                  id="dateOfRegistration"
+                  name="dateOfRegistration"
+                  [value]="formatDate(editableData.dateOfRegistration)"
+                  disabled
+                  class="form-control">
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-actions">
+              <div class="action-group">
+                <button 
+                  type="button"
+                  class="btn btn-secondary"
+                  (click)="closeModal()">
+                  <i class="fa fa-times"></i> Cancel
+                </button>
+                
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  *ngIf="!isEditing"
+                  (click)="startEditing()">
+                  <i class="fa fa-edit"></i> Edit Profile
+                </button>
+                
+                <button 
+                  type="submit"
+                  class="btn btn-success"
+                  *ngIf="isEditing"
+                  [disabled]="!profileForm.valid || isSaving">
+                  <i class="fa fa-save"></i> 
+                  {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                </button>
+                
+                <button 
+                  type="button"
+                  class="btn btn-warning"
+                  *ngIf="isEditing"
+                  (click)="cancelEditing()">
+                  <i class="fa fa-undo"></i> Cancel Edit
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
