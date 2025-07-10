@@ -4,7 +4,8 @@ import { gql } from 'apollo-angular';
 import { Router } from '@angular/router';
 import { MutationResult } from 'apollo-angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +13,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class LoginService {
   private token: string | null = null;
 
-  constructor(private apollo: Apollo,private snackBar: MatSnackBar, private router: Router) {}
+  constructor(private apollo: Apollo, private snackBar: MatSnackBar, private router: Router) {}
 
-  login(email: string, password: string) {
-    const obtainJwtToken  = gql`
+  login(email: string, password: string): Observable<MutationResult> {
+    const obtainJwtToken = gql`
       mutation obtainJwtToken($email: String!, $password: String!) {
         obtainJwtToken(email: $email, password: $password) {
           token
@@ -43,29 +44,30 @@ export class LoginService {
     };
 
     return this.apollo.mutate<ObtainJwtTokenResponse>({
-  mutation: obtainJwtToken,
-  variables: { email, password }
-}).subscribe({
-  next: (response: MutationResult<ObtainJwtTokenResponse>) => {
-    const result = response.data?.obtainJwtToken;
+      mutation: obtainJwtToken,
+      variables: { email, password }
+    }).pipe(
+      tap({
+        next: (response: MutationResult<ObtainJwtTokenResponse>) => {
+          const result = response.data?.obtainJwtToken;
 
-    if (result?.token) {
-      this.token = result.token;
-      localStorage.setItem('token', this.token);
-      this.snackBar.open(result.message , 'Close', { duration: 3000 });
-      this.router.navigate(['/main']);
-    } else {
-      this.snackBar.open(result?.message || '', 'Close', { duration: 3000 });
-      this.router.navigate(['/login']);
-    }
-  },
-  error: (error) => {
-    console.error('Login error:', error);
-    this.snackBar.open('Invalid email or password. Please try again.', 'Close', { duration: 3000 });
-    this.router.navigate(['/login']);
-  }
-});
-
+          if (result?.token) {
+            this.token = result.token;
+            localStorage.setItem('token', this.token);
+            this.snackBar.open(result.message, 'Close', { duration: 3000 });
+            this.router.navigate(['/main']);
+          } else {
+            this.snackBar.open(result?.message || '', 'Close', { duration: 3000 });
+            this.router.navigate(['/login']);
+          }
+        },
+        error: (error) => {
+          console.error('Login error:', error);
+          this.snackBar.open('Invalid email or password. Please try again.', 'Close', { duration: 3000 });
+          this.router.navigate(['/login']);
+        }
+      })
+    );
   }
 
   isLoggedIn(): boolean {

@@ -64,7 +64,7 @@
             },
             "development": {
               "buildTarget": "PROJECT:build:development",
-              "host": "192.168.1.167"
+              "host": "192.168.1.150"
             }
           },
           "defaultConfiguration": "development"
@@ -95,5 +95,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "7baee1b5-8190-4d73-b815-05329cdf35de"
   }
 }
