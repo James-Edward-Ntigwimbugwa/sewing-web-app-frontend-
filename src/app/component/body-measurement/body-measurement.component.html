@@ -1,0 +1,256 @@
+<!-- src/app/component/body-measurements/body-measurements.component.html -->
+<app-header></app-header>
+<app-side-nav></app-side-nav>
+
+<div class="container">
+  <div class="header-section">
+    <button (click)="goBack()" class="back-button">← Back to Styles</button>
+    <h1>Body Measurements</h1>
+  </div>
+
+  <!-- Selected Style Summary -->
+  <div *ngIf="selectedStyle" class="selected-style-summary">
+    <h2>Selected Style: {{ selectedStyle.name }}</h2>
+    <div class="style-summary">
+      <img [src]="selectedStyle.image" [alt]="selectedStyle.name">
+      <div class="style-details">
+        <p class="cost">Cost: Tsh {{ selectedStyle.cost.toFixed(2) }}</p>
+        <p>{{ selectedStyle.description }}</p>
+        <p *ngIf="estimatedDays > 0" class="estimated-time">
+          <strong>Estimated completion:</strong> {{ estimatedDays }} days
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Measurement Tips -->
+  <div *ngIf="measurementTips.length > 0" class="measurement-tips">
+    <h3>📏 Measurement Tips</h3>
+    <ul>
+      <li *ngFor="let tip of measurementTips">{{ tip }}</li>
+    </ul>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-container">
+    <p>{{ successMessage }}</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-container">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Validation Errors -->
+  <div *ngIf="validationErrors.length > 0" class="validation-errors">
+    <h4>Please correct the following errors:</h4>
+    <ul>
+      <li *ngFor="let error of validationErrors">{{ error }}</li>
+    </ul>
+  </div>
+
+  <!-- Measurements Form -->
+  <div *ngIf="!successMessage" class="measurements-form">
+    <form (ngSubmit)="onSubmit()" #measurementsForm="ngForm">
+      
+      <!-- Customer Information -->
+      <div class="form-section">
+        <h3>Customer Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customerName">Full Name *</label>
+            <input 
+              type="text" 
+              id="customerName" 
+              name="customerName" 
+              [(ngModel)]="measurements.customerName" 
+              required 
+              placeholder="Enter your full name">
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number *</label>
+            <input 
+              type="tel" 
+              id="phoneNumber" 
+              name="phoneNumber" 
+              [(ngModel)]="measurements.phoneNumber" 
+              (ngModelChange)="onPhoneNumberChange()"
+              required 
+              placeholder="e.g., +255 123 456 789">
+            <small>We'll use this to contact you about your order</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            [(ngModel)]="measurements.email" 
+            placeholder="your.email@example.com">
+        </div>
+      </div>
+
+      <!-- Body Measurements -->
+      <div class="form-section">
+        <h3>Body Measurements (in cm)</h3>
+        <p class="measurement-note">
+          <strong>Note:</strong> All measurements should be taken in centimeters. 
+          For best results, have someone help you take these measurements.
+        </p>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="chest">Chest/Bust *</label>
+            <input 
+              type="number" 
+              id="chest" 
+              name="chest" 
+              [(ngModel)]="measurements.chest" 
+              required 
+              min="50" 
+              max="200" 
+              placeholder="90">
+            <small>Measure around the fullest part of your chest</small>
+          </div>
+          <div class="form-group">
+            <label for="waist">Waist *</label>
+            <input 
+              type="number" 
+              id="waist" 
+              name="waist" 
+              [(ngModel)]="measurements.waist" 
+              required 
+              min="40" 
+              max="150" 
+              placeholder="75">
+            <small>Measure around your natural waistline</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hips">Hips</label>
+            <input 
+              type="number" 
+              id="hips" 
+              name="hips" 
+              [(ngModel)]="measurements.hips" 
+              min="50" 
+              max="200" 
+              placeholder="95">
+            <small>Measure around the fullest part of your hips</small>
+          </div>
+          <div class="form-group">
+            <label for="shoulderWidth">Shoulder Width</label>
+            <input 
+              type="number" 
+              id="shoulderWidth" 
+              name="shoulderWidth" 
+              [(ngModel)]="measurements.shoulderWidth" 
+              min="30" 
+              max="60" 
+              placeholder="42">
+            <small>Measure from shoulder point to shoulder point</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="armLength">Arm Length *</label>
+            <input 
+              type="number" 
+              id="armLength" 
+              name="armLength" 
+              [(ngModel)]="measurements.armLength" 
+              required 
+              min="40" 
+              max="80" 
+              placeholder="60">
+            <small>Measure from shoulder to wrist</small>
+          </div>
+          <div class="form-group">
+            <label for="inseam">Inseam (for pants)</label>
+            <input 
+              type="number" 
+              id="inseam" 
+              name="inseam" 
+              [(ngModel)]="measurements.inseam" 
+              min="60" 
+              max="100" 
+              placeholder="75">
+            <small>Measure from crotch to ankle</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="neckCircumference">Neck Circumference</label>
+            <input 
+              type="number" 
+              id="neckCircumference" 
+              name="neckCircumference" 
+              [(ngModel)]="measurements.neckCircumference" 
+              min="25" 
+              max="50" 
+              placeholder="38">
+            <small>Measure around the base of your neck</small>
+          </div>
+          <div class="form-group">
+            <label for="height">Height *</label>
+            <input 
+              type="number" 
+              id="height" 
+              name="height" 
+              [(ngModel)]="measurements.height" 
+              required 
+              min="140" 
+              max="220" 
+              placeholder="170">
+            <small>Your height in centimeters</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="weight">Weight (kg)</label>
+            <input 
+              type="number" 
+              id="weight" 
+              name="weight" 
+              [(ngModel)]="measurements.weight" 
+              min="40" 
+              max="150" 
+              placeholder="65">
+            <small>Your weight in kilograms (optional)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Notes -->
+      <div class="form-section">
+        <h3>Additional Notes</h3>
+        <div class="form-group">
+          <label for="additionalNotes">Special Instructions or Preferences</label>
+          <textarea 
+            id="additionalNotes" 
+            name="additionalNotes" 
+            [(ngModel)]="measurements.additionalNotes" 
+            rows="4" 
+            placeholder="Any special requirements, fit preferences, or additional notes for the tailor...">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" (click)="clearForm()" class="clear-button">Clear Form</button>
+        <button type="submit" [disabled]="isLoading || !measurementsForm.valid" class="submit-button">
+          <span *ngIf="isLoading">Submitting...</span>
+          <span *ngIf="!isLoading">Submit Measurements</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,5 +1,7 @@
+// src/app/component/main/main.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { HeaderComponent } from "../header/header.component";
 import { SideNavComponent } from '../side-nav/side-nav.component';
 import { Subscription } from 'rxjs';
@@ -19,7 +21,10 @@ export class MainComponent implements OnInit, OnDestroy {
   errorMessage = '';
   private subscription: Subscription = new Subscription();
 
-  constructor(private clothingStyleService: ClothingStyleService) {}
+  constructor(
+    private clothingStyleService: ClothingStyleService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadClothingStyles();
@@ -91,8 +96,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
   proceedToSewing(): void {
     if (this.selectedStyle) {
-      alert(`Proceeding to sew ${this.selectedStyle.name}. Total cost: Tsh ${this.selectedStyle.cost.toFixed(2)}`);
-      // Here you would typically navigate to a new component or trigger a service to handle the sewing process
+      // Navigate to body measurements page with the selected style
+      this.router.navigate(['/body-measurements'], {
+        state: { selectedStyle: this.selectedStyle }
+      });
     }
   }
 

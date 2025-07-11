@@ -1,6 +1,6 @@
 // clothing-style.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -14,68 +14,63 @@ export interface ClothingStyle {
   isActive?: boolean;
 }
 
-interface GraphQLResponse {
-  data: {
-    activeClothingStyles: ClothingStyle[];
-    clothingStyle?: ClothingStyle;
-  };
-  errors?: any[];
+interface ClothingStyleResponse {
+  clothing_styles: ClothingStyle[];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClothingStyleService {
-  private apiUrl = 'http://localhost:8000/graphql/'; 
+  private apiUrl = 'http://127.0.0.1:8000/api/clothing-styles/'; 
   private clothingStylesSubject = new BehaviorSubject<ClothingStyle[]>([]);
   public clothingStyles$ = this.clothingStylesSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  // GraphQL query to get all active clothing styles
-  private getClothingStylesQuery = `
-    query GetActiveClothingStyles {
-      activeClothingStyles {
-        id
-        name
-        description
-        cost
-        image
-        isActive
-      }
-    }
-  `;
-
-  // GraphQL query to get a single clothing style by ID
-  private getClothingStyleQuery = `
-    query GetClothingStyle($id: ID!) {
-      clothingStyle(id: $id) {
-        id
-        name
-        description
-        cost
-        image
-        isActive
-      }
-    }
-  `;
+  // HTTP headers for REST API requests
+  private getHttpHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+  }
 
   // Fetch all active clothing styles using GET request
   getActiveClothingStyles(): Observable<ClothingStyle[]> {
-    const params = new HttpParams().set('query', this.getClothingStylesQuery);
-
-    return this.http.get<GraphQLResponse>(this.apiUrl, { params }).pipe(
+    return this.http.get<ClothingStyleResponse>(this.apiUrl, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
       map(response => {
-        if (response.errors) {
-          throw new Error('GraphQL errors: ' + JSON.stringify(response.errors));
-        }
-        const styles = response.data.activeClothingStyles || [];
+        console.log('Raw response:', response); // Debug log
+        const styles = response.clothing_styles || [];
+        const activeStyles = styles.filter(style => style.isActive !== false);
+        console.log('Active styles:', activeStyles); // Debug log
+        this.clothingStylesSubject.next(activeStyles);
+        return activeStyles;
+      }),
+      catchError(error => {
+        console.error('Error fetching clothing styles:', error);
+        console.error('Error details:', error.error); // More detailed error logging
+        // Return empty array on error
+        return of([]);
+      })
+    );
+  }
+
+  // Fetch all clothing styles using GET request
+  getAllClothingStyles(): Observable<ClothingStyle[]> {
+    return this.http.get<ClothingStyleResponse>(this.apiUrl, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      map(response => {
+        console.log('Raw response:', response); // Debug log
+        const styles = response.clothing_styles || [];
         this.clothingStylesSubject.next(styles);
         return styles;
       }),
       catchError(error => {
-        console.error('Error fetching clothing styles:', error);
-        // Return empty array on error
+        console.error('Error fetching all clothing styles:', error);
         return of([]);
       })
     );
@@ -83,16 +78,12 @@ export class ClothingStyleService {
 
   // Fetch a single clothing style by ID using GET request
   getClothingStyleById(id: string): Observable<ClothingStyle | null> {
-    const queryWithVariables = this.getClothingStyleQuery.replace('$id', `"${id}"`);
-    const params = new HttpParams().set('query', queryWithVariables);
+    const url = `${this.apiUrl}${id}/`;
 
-    return this.http.get<GraphQLResponse>(this.apiUrl, { params }).pipe(
-      map(response => {
-        if (response.errors) {
-          throw new Error('GraphQL errors: ' + JSON.stringify(response.errors));
-        }
-        return response.data.clothingStyle || null;
-      }),
+    return this.http.get<ClothingStyle>(url, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      map(style => style || null),
       catchError(error => {
         console.error('Error fetching clothing style:', error);
         return of(null);
@@ -100,22 +91,57 @@ export class ClothingStyleService {
     );
   }
 
-  // Alternative method using query parameters for single clothing style
-  getClothingStyleByIdWithParams(id: string): Observable<ClothingStyle | null> {
-    const params = new HttpParams()
-      .set('query', this.getClothingStyleQuery)
-      .set('variables', JSON.stringify({ id }));
-
-    return this.http.get<GraphQLResponse>(this.apiUrl, { params }).pipe(
-      map(response => {
-        if (response.errors) {
-          throw new Error('GraphQL errors: ' + JSON.stringify(response.errors));
-        }
-        return response.data.clothingStyle || null;
+  // Create a new clothing style using POST request
+  createClothingStyle(clothingStyle: Omit<ClothingStyle, 'id'>): Observable<ClothingStyle | null> {
+    return this.http.post<ClothingStyle>(this.apiUrl, clothingStyle, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      map(style => {
+        // Refresh the clothing styles list
+        this.refreshClothingStyles();
+        return style;
       }),
       catchError(error => {
-        console.error('Error fetching clothing style:', error);
+        console.error('Error creating clothing style:', error);
         return of(null);
+      })
+    );
+  }
+
+  // Update an existing clothing style using PUT request
+  updateClothingStyle(id: string, clothingStyle: Partial<ClothingStyle>): Observable<ClothingStyle | null> {
+    const url = `${this.apiUrl}${id}/`;
+
+    return this.http.put<ClothingStyle>(url, clothingStyle, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      map(style => {
+        // Refresh the clothing styles list
+        this.refreshClothingStyles();
+        return style;
+      }),
+      catchError(error => {
+        console.error('Error updating clothing style:', error);
+        return of(null);
+      })
+    );
+  }
+
+  // Delete a clothing style using DELETE request
+  deleteClothingStyle(id: string): Observable<boolean> {
+    const url = `${this.apiUrl}${id}/`;
+
+    return this.http.delete(url, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      map(() => {
+        // Refresh the clothing styles list
+        this.refreshClothingStyles();
+        return true;
+      }),
+      catchError(error => {
+        console.error('Error deleting clothing style:', error);
+        return of(false);
       })
     );
   }
@@ -128,5 +154,33 @@ export class ClothingStyleService {
   // Refresh clothing styles
   refreshClothingStyles(): void {
     this.getActiveClothingStyles().subscribe();
+  }
+
+  // Search clothing styles by name
+  searchClothingStyles(searchTerm: string): Observable<ClothingStyle[]> {
+    const url = `${this.apiUrl}?search=${encodeURIComponent(searchTerm)}`;
+
+    return this.http.get<ClothingStyle[]>(url, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      catchError(error => {
+        console.error('Error searching clothing styles:', error);
+        return of([]);
+      })
+    );
+  }
+
+  // Get clothing styles with pagination
+  getClothingStylesWithPagination(page: number = 1, pageSize: number = 10): Observable<any> {
+    const url = `${this.apiUrl}?page=${page}&page_size=${pageSize}`;
+
+    return this.http.get<any>(url, { 
+      headers: this.getHttpHeaders() 
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching clothing styles with pagination:', error);
+        return of({ results: [], count: 0, next: null, previous: null });
+      })
+    );
   }
 }

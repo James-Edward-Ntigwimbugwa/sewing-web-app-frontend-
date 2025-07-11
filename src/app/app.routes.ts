@@ -7,6 +7,7 @@ import { ShirtsComponent } from './component/side-nav/side-nav/shirts/shirts.com
 import { GauniComponent } from './component/side-nav/side-nav/gauni/gauni.component';
 import { TrousersComponent } from './component/side-nav/side-nav/trousers/trousers.component';
 import { LoginComponent } from './component/login/login.component';
+import { BodyMeasurementsComponent } from './component/body-measurement/body-measurement.component';
 
 
 
@@ -22,5 +23,7 @@ export const routes: Routes = [
   { path: 'shirts', component: ShirtsComponent },
   { path: 'gauni', component: GauniComponent },
   { path: 'trousers', component: TrousersComponent },
+  { path: 'body-measurements', component: BodyMeasurementsComponent },
+
 
 ];
