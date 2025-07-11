@@ -8,11 +8,47 @@
         </svg>
       </div>
       <h1 class="registration-title">Create Account</h1>
-      <p class="registration-subtitle">Join us to get started with your tailoring journey</p>
+      <p class="registration-subtitle">Join us to get started with your journey</p>
+      
+      <!-- Registration Type Toggle -->
+      <div class="registration-type-toggle">
+        <button 
+          type="button" 
+          class="toggle-btn" 
+          [class.active]="registrationType === 'customer'"
+          (click)="toggleRegistrationType()"
+        >
+          Customer Registration
+        </button>
+        <button 
+          type="button" 
+          class="toggle-btn" 
+          [class.active]="registrationType === 'tailor'"
+          (click)="toggleRegistrationType()"
+        >
+          Tailor Registration
+        </button>
+      </div>
     </div>
 
     <!-- Registration Form -->
     <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
+      
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        {{ errorMessage }}
+      </div>
       
       <!-- Personal Information Section -->
       <div class="form-section">
@@ -30,12 +66,11 @@
                 id="first_name" 
                 formControlName="first_name" 
                 class="form-input"
-                [class.error]="registrationForm.get('first_name')?.invalid && (registrationForm.get('first_name')?.dirty || registrationForm.get('first_name')?.touched)"
+                [class.error]="isFieldInvalid('first_name')"
                 placeholder="Enter your first name">
             </div>
-            <div *ngIf="registrationForm.get('first_name')?.invalid && (registrationForm.get('first_name')?.dirty || registrationForm.get('first_name')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('first_name')?.errors?.['required']">First name is required</div>
-              <div *ngIf="registrationForm.get('first_name')?.errors?.['minlength']">First name must be at least 2 characters long</div>
+            <div *ngIf="isFieldInvalid('first_name')" class="error-message">
+              {{ getFieldError('first_name') }}
             </div>
           </div>
 
@@ -50,12 +85,11 @@
                 id="last_name" 
                 formControlName="last_name" 
                 class="form-input"
-                [class.error]="registrationForm.get('last_name')?.invalid && (registrationForm.get('last_name')?.dirty || registrationForm.get('last_name')?.touched)"
+                [class.error]="isFieldInvalid('last_name')"
                 placeholder="Enter your last name">
             </div>
-            <div *ngIf="registrationForm.get('last_name')?.invalid && (registrationForm.get('last_name')?.dirty || registrationForm.get('last_name')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('last_name')?.errors?.['required']">Last name is required</div>
-              <div *ngIf="registrationForm.get('last_name')?.errors?.['minlength']">Last name must be at least 2 characters long</div>
+            <div *ngIf="isFieldInvalid('last_name')" class="error-message">
+              {{ getFieldError('last_name') }}
             </div>
           </div>
         </div>
@@ -72,12 +106,11 @@
                 id="email" 
                 formControlName="email" 
                 class="form-input"
-                [class.error]="registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)"
+                [class.error]="isFieldInvalid('email')"
                 placeholder="Enter your email address">
             </div>
-            <div *ngIf="registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('email')?.errors?.['required']">Email is required</div>
-              <div *ngIf="registrationForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
+            <div *ngIf="isFieldInvalid('email')" class="error-message">
+              {{ getFieldError('email') }}
             </div>
           </div>
 
@@ -92,17 +125,18 @@
                 id="phoneNumber" 
                 formControlName="phoneNumber" 
                 class="form-input"
-                [class.error]="registrationForm.get('phoneNumber')?.invalid && (registrationForm.get('phoneNumber')?.dirty || registrationForm.get('phoneNumber')?.touched)"
+                [class.error]="isFieldInvalid('phoneNumber')"
                 placeholder="Enter your phone number">
             </div>
-            <div *ngIf="registrationForm.get('phoneNumber')?.invalid && (registrationForm.get('phoneNumber')?.dirty || registrationForm.get('phoneNumber')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('phoneNumber')?.errors?.['required']">Phone number is required</div>
+            <div *ngIf="isFieldInvalid('phoneNumber')" class="error-message">
+              {{ getFieldError('phoneNumber') }}
             </div>
           </div>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <!-- National ID Number - Only for Tailors -->
+          <div class="form-group" *ngIf="registrationType === 'tailor'">
             <label class="form-label" for="nationalIdNumber">National ID Number *</label>
             <div class="input-wrapper">
               <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -113,11 +147,11 @@
                 id="nationalIdNumber" 
                 formControlName="nationalIdNumber" 
                 class="form-input"
-                [class.error]="registrationForm.get('nationalIdNumber')?.invalid && (registrationForm.get('nationalIdNumber')?.dirty || registrationForm.get('nationalIdNumber')?.touched)"
+                [class.error]="isFieldInvalid('nationalIdNumber')"
                 placeholder="Enter your national ID number">
             </div>
-            <div *ngIf="registrationForm.get('nationalIdNumber')?.invalid && (registrationForm.get('nationalIdNumber')?.dirty || registrationForm.get('nationalIdNumber')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('nationalIdNumber')?.errors?.['required']">National ID number is required</div>
+            <div *ngIf="isFieldInvalid('nationalIdNumber')" class="error-message">
+              {{ getFieldError('nationalIdNumber') }}
             </div>
           </div>
 
@@ -131,21 +165,21 @@
                 id="sex" 
                 formControlName="sex" 
                 class="form-input"
-                [class.error]="registrationForm.get('sex')?.invalid && (registrationForm.get('sex')?.dirty || registrationForm.get('sex')?.touched)">
+                [class.error]="isFieldInvalid('sex')">
                 <option value="">Select gender</option>
                 <option value="M">Male</option>
                 <option value="F">Female</option>
               </select>
             </div>
-            <div *ngIf="registrationForm.get('sex')?.invalid && (registrationForm.get('sex')?.dirty || registrationForm.get('sex')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('sex')?.errors?.['required']">Gender is required</div>
+            <div *ngIf="isFieldInvalid('sex')" class="error-message">
+              {{ getFieldError('sex') }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Location Information Section -->
-      <div class="form-section">
+      <!-- Location Information Section - Only for Tailors -->
+      <div class="form-section" *ngIf="registrationType === 'tailor'">
         <h3 class="section-title">Location Information</h3>
         
         <div class="form-row">
@@ -160,11 +194,11 @@
                 id="areaOfResidence" 
                 formControlName="areaOfResidence" 
                 class="form-input"
-                [class.error]="registrationForm.get('areaOfResidence')?.invalid && (registrationForm.get('areaOfResidence')?.dirty || registrationForm.get('areaOfResidence')?.touched)"
+                [class.error]="isFieldInvalid('areaOfResidence')"
                 placeholder="Enter area of residence">
             </div>
-            <div *ngIf="registrationForm.get('areaOfResidence')?.invalid && (registrationForm.get('areaOfResidence')?.dirty || registrationForm.get('areaOfResidence')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('areaOfResidence')?.errors?.['required']">Area of residence is required</div>
+            <div *ngIf="isFieldInvalid('areaOfResidence')" class="error-message">
+              {{ getFieldError('areaOfResidence') }}
             </div>
           </div>
 
@@ -179,11 +213,11 @@
                 id="areaOfWork" 
                 formControlName="areaOfWork" 
                 class="form-input"
-                [class.error]="registrationForm.get('areaOfWork')?.invalid && (registrationForm.get('areaOfWork')?.dirty || registrationForm.get('areaOfWork')?.touched)"
+                [class.error]="isFieldInvalid('areaOfWork')"
                 placeholder="Enter area of work">
             </div>
-            <div *ngIf="registrationForm.get('areaOfWork')?.invalid && (registrationForm.get('areaOfWork')?.dirty || registrationForm.get('areaOfWork')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('areaOfWork')?.errors?.['required']">Area of work is required</div>
+            <div *ngIf="isFieldInvalid('areaOfWork')" class="error-message">
+              {{ getFieldError('areaOfWork') }}
             </div>
           </div>
         </div>
@@ -205,11 +239,11 @@
                 id="username" 
                 formControlName="username" 
                 class="form-input"
-                [class.error]="registrationForm.get('username')?.invalid && (registrationForm.get('username')?.dirty || registrationForm.get('username')?.touched)"
+                [class.error]="isFieldInvalid('username')"
                 placeholder="Choose a username">
             </div>
-            <div *ngIf="registrationForm.get('username')?.invalid && (registrationForm.get('username')?.dirty || registrationForm.get('username')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('username')?.errors?.['required']">Username is required</div>
+            <div *ngIf="isFieldInvalid('username')" class="error-message">
+              {{ getFieldError('username') }}
             </div>
           </div>
 
@@ -224,12 +258,11 @@
                 id="password" 
                 formControlName="password" 
                 class="form-input"
-                [class.error]="registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)"
+                [class.error]="isFieldInvalid('password')"
                 placeholder="Enter your password">
             </div>
-            <div *ngIf="registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)" class="error-message">
-              <div *ngIf="registrationForm.get('password')?.errors?.['required']">Password is required</div>
-              <div *ngIf="registrationForm.get('password')?.errors?.['minlength']">Password must be at least 5 characters long</div>
+            <div *ngIf="isFieldInvalid('password')" class="error-message">
+              {{ getFieldError('password') }}
             </div>
           </div>
         </div>
@@ -245,11 +278,11 @@
               id="confirmPassword" 
               formControlName="confirmPassword" 
               class="form-input"
-              [class.error]="(registrationForm.get('confirmPassword')?.invalid && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched)) || (registrationForm.errors?.['mismatch'] && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched))"
+              [class.error]="isFieldInvalid('confirmPassword') || (registrationForm.errors?.['mismatch'] && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched))"
               placeholder="Confirm your password">
           </div>
-          <div *ngIf="registrationForm.get('confirmPassword')?.invalid && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched)" class="error-message">
-            <div *ngIf="registrationForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</div>
+          <div *ngIf="isFieldInvalid('confirmPassword')" class="error-message">
+            {{ getFieldError('confirmPassword') }}
           </div>
           <div *ngIf="registrationForm.errors?.['mismatch'] && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched)" class="error-message">
             Passwords do not match
@@ -258,30 +291,22 @@
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" class="registration-button" [disabled]="registrationForm.invalid">
-        <div class="loading-content">
-          <svg *ngIf="isLoading" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+      <button 
+        type="submit" 
+        class="registration-button" 
+        [disabled]="isLoading"
+        [class.loading]="isLoading"
+      >
+        <span *ngIf="!isLoading">Create {{ registrationType === 'tailor' ? 'Tailor' : 'Customer' }} Account</span>
+        <span *ngIf="isLoading" class="loading-content">
+          <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" fill="currentColor"/>
+            <path d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z" fill="currentColor"/>
           </svg>
-          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-        </div>
+          Creating Account...
+        </span>
       </button>
     </form>
-
-    <!-- Success/Error Messages -->
-    <div *ngIf="successMessage" class="alert alert-success">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
-      {{ successMessage }}
-    </div>
-
-    <div *ngIf="errorMessage" class="alert alert-error">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-      </svg>
-      {{ errorMessage }}
-    </div>
 
     <!-- Footer -->
     <div class="registration-footer">

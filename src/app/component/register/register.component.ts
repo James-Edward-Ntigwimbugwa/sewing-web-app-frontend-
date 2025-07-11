@@ -18,28 +18,67 @@ export class RegisterComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
   isLoading: boolean = false;
+  registrationType: 'tailor' | 'customer' = 'customer'; // Default to customer
 
   constructor(private fb: FormBuilder, private router: Router, private gqlService: RegisterationService) {}
 
   ngOnInit() {
+    this.initializeForm();
+  }
+
+  initializeForm() {
     this.registrationForm = this.fb.group({
-      // Personal Information
+      // Personal Information (required for both)
       first_name: ['', [Validators.required, Validators.minLength(2)]],
       last_name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required]],
-      nationalIdNumber: ['', [Validators.required]],
       sex: ['', [Validators.required]],
       
-      // Location Information
-      areaOfResidence: ['', [Validators.required]],
-      areaOfWork: ['', [Validators.required]],
+      // National ID (only required for tailors)
+      nationalIdNumber: [''],
       
-      // Account Information
+      // Location Information (only required for tailors)
+      areaOfResidence: [''],
+      areaOfWork: [''],
+      
+      // Account Information (required for both)
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(5)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+
+    // Update validators based on registration type
+    this.updateValidators();
+  }
+
+  toggleRegistrationType() {
+    this.registrationType = this.registrationType === 'tailor' ? 'customer' : 'tailor';
+    this.updateValidators();
+    this.clearMessages();
+  }
+
+  updateValidators() {
+    const nationalIdControl = this.registrationForm.get('nationalIdNumber');
+    const areaOfResidenceControl = this.registrationForm.get('areaOfResidence');
+    const areaOfWorkControl = this.registrationForm.get('areaOfWork');
+
+    if (this.registrationType === 'tailor') {
+      // For tailors, make these fields required
+      nationalIdControl?.setValidators([Validators.required]);
+      areaOfResidenceControl?.setValidators([Validators.required]);
+      areaOfWorkControl?.setValidators([Validators.required]);
+    } else {
+      // For customers, remove required validators
+      nationalIdControl?.clearValidators();
+      areaOfResidenceControl?.clearValidators();
+      areaOfWorkControl?.clearValidators();
+    }
+
+    // Update validity
+    nationalIdControl?.updateValueAndValidity();
+    areaOfResidenceControl?.updateValueAndValidity();
+    areaOfWorkControl?.updateValueAndValidity();
   }
 
   passwordMatchValidator(formGroup: FormGroup) {
@@ -59,37 +98,116 @@ export class RegisterComponent implements OnInit {
       this.successMessage = '';
 
       const formData = this.registrationForm.value;
-      const { email, first_name, last_name, password } = formData;
 
-      // For now, we'll use the existing service method, but you can extend it to handle additional fields
-      this.gqlService.CreateCustomUser(email, first_name, last_name, password).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.successMessage = 'Registration successful! You can now log in with your credentials.';
+      if (this.registrationType === 'tailor') {
+        this.registerTailor(formData);
+      } else {
+        this.registerCustomer(formData);
+      }
+    } else {
+      // Mark all fields as touched to trigger validation messages
+      this.markFormGroupTouched(this.registrationForm);
+    }
+  }
+
+  private registerTailor(formData: any) {
+    const { 
+      first_name, 
+      last_name, 
+      email, 
+      phoneNumber, 
+      sex, 
+      nationalIdNumber, 
+      areaOfResidence, 
+      areaOfWork, 
+      username, 
+      password 
+    } = formData;
+
+    // Combine first_name and last_name to create fullName
+    const fullName = `${first_name} ${last_name}`;
+
+    this.gqlService.RegisterTailor(
+      fullName,
+      username,
+      email,
+      nationalIdNumber,
+      phoneNumber,
+      sex,
+      areaOfResidence,
+      areaOfWork,
+      password
+    ).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        
+        const result = response.data?.registerTailor;
+        
+        if (result?.success) {
+          this.successMessage = 'Tailor registration successful! You can now log in with your credentials.';
           
           // Optionally redirect after a delay
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 2000);
-        },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Registration error:', error);
-          
-          // Handle unique constraint error for email
-          if (error.message.includes('UNIQUE constraint failed')) {
-            this.errorMessage = 'This email already exists. Please use a different email address.';
-          } else if (error.message.includes('email')) {
-            this.errorMessage = 'Email validation failed. Please check your email format.';
-          } else {
-            this.errorMessage = 'Registration failed. Please check your information and try again.';
-          }
+        } else {
+          this.errorMessage = result?.message || 'Tailor registration failed. Please try again.';
         }
-      });
-    } else {
-      // Mark all fields as touched to trigger validation messages
-      this.markFormGroupTouched(this.registrationForm);
-    }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Tailor registration error:', error);
+        
+        // Handle specific error messages
+        if (error.message?.includes('Username already exists')) {
+          this.errorMessage = 'This username is already taken. Please choose a different username.';
+        } else if (error.message?.includes('Email already exists')) {
+          this.errorMessage = 'This email is already registered. Please use a different email address.';
+        } else if (error.message?.includes('email')) {
+          this.errorMessage = 'Email validation failed. Please check your email format.';
+        } else {
+          this.errorMessage = 'Tailor registration failed. Please check your information and try again.';
+        }
+      }
+    });
+  }
+
+  private registerCustomer(formData: any) {
+    const { email, first_name, last_name, password } = formData;
+
+    this.gqlService.CreateCustomUser(email, first_name, last_name, password).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        
+        const result = response.data?.createCustomUser;
+        
+        if (result?.success) {
+          this.successMessage = 'Customer registration successful! You can now log in with your credentials.';
+          
+          // Optionally redirect after a delay
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else {
+          this.errorMessage = result?.message || 'Customer registration failed. Please try again.';
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Customer registration error:', error);
+        
+        // Handle specific error messages
+        if (error.message?.includes('User with this email already exists')) {
+          this.errorMessage = 'This email is already registered. Please use a different email address.';
+        } else if (error.message?.includes('UNIQUE constraint failed')) {
+          this.errorMessage = 'This email already exists. Please use a different email address.';
+        } else if (error.message?.includes('email')) {
+          this.errorMessage = 'Email validation failed. Please check your email format.';
+        } else {
+          this.errorMessage = 'Customer registration failed. Please check your information and try again.';
+        }
+      }
+    });
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
@@ -102,6 +220,11 @@ export class RegisterComponent implements OnInit {
         }
       }
     });
+  }
+
+  private clearMessages() {
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   // Helper method to check if a field is invalid and should show error
@@ -124,6 +247,12 @@ export class RegisterComponent implements OnInit {
         return `${this.getFieldDisplayName(fieldName)} must be at least ${field.errors['minlength'].requiredLength} characters long`;
       }
     }
+    
+    // Check for password mismatch
+    if (fieldName === 'confirmPassword' && this.registrationForm.errors?.['mismatch']) {
+      return 'Passwords do not match';
+    }
+    
     return '';
   }
 

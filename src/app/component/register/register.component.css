@@ -345,3 +345,54 @@ select.form-input:focus {
     font-size: 1.25rem;
   }
 }
+
+/* Add to your existing register.component.css */
+
+.registration-type-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  color: #374151;
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+}
+
+/* Responsive adjustments for tabs */
+@media (max-width: 480px) {
+  .registration-type-toggle {
+    flex-direction: column;
+    padding: 0.25rem;
+  }
+
+  .toggle-btn {
+    padding: 8px 10px;
+    margin-bottom: 0.25rem;
+  }
+  .toggle-btn:last-child {
+    margin-bottom: 0;
+  }
+}

@@ -15,13 +15,15 @@ export class LoginService {
 
   constructor(private apollo: Apollo, private snackBar: MatSnackBar, private router: Router) {}
 
-  login(email: string, password: string): Observable<MutationResult> {
-    const obtainJwtToken = gql`
-      mutation obtainJwtToken($email: String!, $password: String!) {
-        obtainJwtToken(email: $email, password: $password) {
+  // Customer login with email
+  customerLogin(email: string, password: string): Observable<MutationResult> {
+    const customerUserLogin = gql`
+      mutation customerUserLogin($email: String!, $password: String!) {
+        customerUserLogin(email: $email, password: $password) {
           token
           refresh
           message
+          success
           user {
             id
             email
@@ -30,12 +32,12 @@ export class LoginService {
       }
     `;
 
-    // Define the type for the mutation response
-    type ObtainJwtTokenResponse = {
-      obtainJwtToken: {
+    type CustomerUserLoginResponse = {
+      customerUserLogin: {
         token: string;
         refresh: string;
         message: string;
+        success: boolean;
         user: {
           id: string;
           email: string;
@@ -43,40 +45,101 @@ export class LoginService {
       };
     };
 
-    return this.apollo.mutate<ObtainJwtTokenResponse>({
-      mutation: obtainJwtToken,
+    return this.apollo.mutate<CustomerUserLoginResponse>({
+      mutation: customerUserLogin,
       variables: { email, password }
     }).pipe(
       tap({
-        next: (response: MutationResult<ObtainJwtTokenResponse>) => {
-          const result = response.data?.obtainJwtToken;
+        next: (response: MutationResult<CustomerUserLoginResponse>) => {
+          const result = response.data?.customerUserLogin;
 
-          if (result?.token) {
+          if (result?.success && result?.token) {
             this.token = result.token;
             localStorage.setItem('token', this.token);
+            localStorage.setItem('refreshToken', result.refresh);
             this.snackBar.open(result.message, 'Close', { duration: 3000 });
             this.router.navigate(['/main']);
           } else {
-            this.snackBar.open(result?.message || '', 'Close', { duration: 3000 });
-            this.router.navigate(['/login']);
+            this.snackBar.open(result?.message || 'Login failed', 'Close', { duration: 3000 });
           }
         },
         error: (error) => {
-          console.error('Login error:', error);
+          console.error('Customer login error:', error);
           this.snackBar.open('Invalid email or password. Please try again.', 'Close', { duration: 3000 });
-          this.router.navigate(['/login']);
         }
       })
     );
   }
 
+  // Tailor login with username
+  tailorLogin(username: string, password: string): Observable<MutationResult> {
+    const tailorLogin = gql`
+      mutation tailorLogin($username: String!, $password: String!) {
+        tailorLogin(username: $username, password: $password) {
+          token
+          refresh
+          message
+          success
+          tailor {
+            id
+            username
+          }
+        }
+      }
+    `;
+
+    type TailorLoginResponse = {
+      tailorLogin: {
+        token: string;
+        refresh: string;
+        message: string;
+        success: boolean;
+        tailor: {
+          id: string;
+          username: string;
+        };
+      };
+    };
+
+    return this.apollo.mutate<TailorLoginResponse>({
+      mutation: tailorLogin,
+      variables: { username, password }
+    }).pipe(
+      tap({
+        next: (response: MutationResult<TailorLoginResponse>) => {
+          const result = response.data?.tailorLogin;
+
+          if (result?.success && result?.token) {
+            this.token = result.token;
+            localStorage.setItem('token', this.token);
+            localStorage.setItem('refreshToken', result.refresh);
+            this.snackBar.open(result.message, 'Close', { duration: 3000 });
+            this.router.navigate(['/main']);
+          } else {
+            this.snackBar.open(result?.message || 'Login failed', 'Close', { duration: 3000 });
+          }
+        },
+        error: (error) => {
+          console.error('Tailor login error:', error);
+          this.snackBar.open('Invalid username or password. Please try again.', 'Close', { duration: 3000 });
+        }
+      })
+    );
+  }
+
+  // Legacy method for backward compatibility
+  login(email: string, password: string): Observable<MutationResult> {
+    return this.customerLogin(email, password);
+  }
+
   isLoggedIn(): boolean {
-    return this.token !== null;
+    return this.token !== null || localStorage.getItem('token') !== null;
   }
 
   logout() {
     this.token = null;
-    localStorage.removeItem('token'); // Remove token from local storage
-    this.router.navigate(['/login']); // Redirect to login
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    this.router.navigate(['/login']);
   }
 }

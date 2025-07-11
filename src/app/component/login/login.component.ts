@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { HeaderComponent } from "../header/header.component";
 import { LoginService } from '../../service/login.service';
-import { TailorLoginService } from '../../service/tailor-login.service';
 
 export interface LoginResponse {
   message: string;
@@ -31,8 +30,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private loginService: LoginService,
-    private tailorLoginService: TailorLoginService
+    private loginService: LoginService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -44,6 +42,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.updateValidators();
+    this.loadRememberedEmail();
   }
 
   toggleLoginType(): void {
@@ -66,6 +65,16 @@ export class LoginComponent implements OnInit {
 
     emailControl?.updateValueAndValidity();
     usernameControl?.updateValueAndValidity();
+  }
+
+  private loadRememberedEmail(): void {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail && this.loginType === 'email') {
+      this.loginForm.patchValue({
+        email: rememberedEmail,
+        rememberMe: true
+      });
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -91,11 +100,17 @@ export class LoginComponent implements OnInit {
   }
 
   private handleEmailLogin(email: string, password: string, rememberMe: boolean): void {
-    this.loginService.login(email, password).subscribe({
+    this.loginService.customerLogin(email, password).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        this.successMessage = 'Login successful!';
-        this.handleSuccessfulLogin(response, rememberMe);
+        const result = response.data?.customerUserLogin;
+        
+        if (result?.success) {
+          this.successMessage = result.message || 'Login successful!';
+          this.handleSuccessfulLogin(result, rememberMe);
+        } else {
+          this.errorMessage = result?.message || 'Email login failed';
+        }
       },
       error: (error) => {
         this.isLoading = false;
@@ -106,14 +121,16 @@ export class LoginComponent implements OnInit {
   }
 
   private handleUsernameLogin(username: string, password: string): void {
-    this.tailorLoginService.login(username, password).subscribe({
-      next: (response: LoginResponse) => {
+    this.loginService.tailorLogin(username, password).subscribe({
+      next: (response: any) => {
         this.isLoading = false;
-        if (response.success) {
-          this.successMessage = response.message || 'Login successful!';
-          this.handleSuccessfulLogin(response, false);
+        const result = response.data?.tailorLogin;
+        
+        if (result?.success) {
+          this.successMessage = result.message || 'Login successful!';
+          this.handleSuccessfulLogin(result, false);
         } else {
-          this.errorMessage = response.message || 'Username login failed';
+          this.errorMessage = result?.message || 'Username login failed';
         }
       },
       error: (error) => {
@@ -133,9 +150,11 @@ export class LoginComponent implements OnInit {
       localStorage.setItem('refreshToken', response.refresh);
     }
     
-    // Handle remember me functionality
+    // Handle remember me functionality (only for email login)
     if (rememberMe && this.loginType === 'email') {
       localStorage.setItem('rememberedEmail', this.loginForm.value.email);
+    } else if (this.loginType === 'email' && !rememberMe) {
+      localStorage.removeItem('rememberedEmail');
     }
 
     // Redirect after successful login
